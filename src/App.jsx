@@ -1,11 +1,27 @@
-import Header from './components/Header'
-import initialEmails from './data/emails'
-
-import './styles/App.css'
+import { useState } from 'react';
+import Header from './components/Header';
+import initialEmails from './data/emails';
+import './styles/App.css';
 
 function App() {
-  // Use initialEmails for state
-  console.log(initialEmails)
+  const [emails, setEmails] = useState(initialEmails);
+  const [hideEmails, setHideEmails] = useState(false);
+
+  const toggleRead = (id) => {
+    setEmails((prevEmails) => 
+      prevEmails.map((email) => email.id === id ? {...email, read: !email.read} : email
+       )
+    );
+  }
+
+const toggleStar = (id) => {
+  setEmails((prevEmails) =>
+    prevEmails.map((email) => email.id === id ? {...email, starred: !email.starred} : email
+    )
+  );
+  }
+
+  const filterEmails = hideEmails ? emails.filter(email => !email.read) : emails;
 
   return (
     <div className="app">
@@ -14,33 +30,50 @@ function App() {
         <ul className="inbox-list">
           <li
             className="item active"
-            // onClick={() => {}}
           >
             <span className="label">Inbox</span>
-            <span className="count">?</span>
+            <span className="count">{emails.length}</span>
           </li>
           <li
             className="item"
-            // onClick={() => {}}
           >
             <span className="label">Starred</span>
-            <span className="count">?</span>
+            <span className="count">{emails.filter(email => email.starred).length}</span>
           </li>
 
           <li className="item toggle">
-            <label for="hide-read">Hide read</label>
+            <label htmlFor="hide-read">Hide read</label>
             <input
               id="hide-read"
               type="checkbox"
-              checked={false}
-              // onChange={() => {}}
+              checked={hideEmails}
+              onChange={() => setHideEmails(!hideEmails)}
             />
           </li>
         </ul>
       </nav>
-      <main className="emails">{/* Render a list of emails here */}</main>
+      <main className="emails">{filterEmails.map((email) => (
+          <li key={email.id} className={`email ${email.read ? 'read' : 'unread'}`}>
+          <input
+          type="checkbox"
+          className="select-checkbox"
+          checked={email.read}
+          onChange={() => toggleRead(email.id)}
+          />
+          <input
+          type="checkbox"
+          className='star-checkbox'
+          checked={email.starred}
+          onChange={() => toggleStar(email.id)}
+          />
+          <div className='sender'>{email.sender}</div>
+          <div className="title">{email.title}</div>
+          </li>
+      ))}
+      </main>
     </div>
   )
+
 }
 
-export default App
+export default App;
